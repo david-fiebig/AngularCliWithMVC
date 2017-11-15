@@ -1,10 +1,12 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
   <Import Project="..\packages\Microsoft.Net.Compilers.2.1.0\build\Microsoft.Net.Compilers.props" Condition="Exists('..\packages\Microsoft.Net.Compilers.2.1.0\build\Microsoft.Net.Compilers.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
+    <!-- Disables TypeScript compilation  -->
+    <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>
@@ -194,6 +196,8 @@
     <Content Include="Scripts\respond.min.js" />
     <Content Include="src\app\app.component.css" />
     <Content Include="src\app\app.component.html" />
+    <Content Include="src\app\login\login.component.css" />
+    <Content Include="src\app\login\login.component.html" />
     <Content Include="src\favicon.ico" />
     <Content Include="src\index.html" />
     <Content Include="src\styles.css" />
@@ -240,6 +244,8 @@
     <TypeScriptCompile Include="src\app\app.component.spec.ts" />
     <TypeScriptCompile Include="src\app\app.component.ts" />
     <TypeScriptCompile Include="src\app\app.module.ts" />
+    <TypeScriptCompile Include="src\app\login\login.component.spec.ts" />
+    <TypeScriptCompile Include="src\app\login\login.component.ts" />
     <TypeScriptCompile Include="src\environments\environment.prod.ts" />
     <TypeScriptCompile Include="src\environments\environment.ts" />
     <TypeScriptCompile Include="src\main.ts" />
