@@ -1,31 +1,119 @@
-﻿@{
-    ViewBag.Title = "Home Page";
-}
+@{
+  string version = typeof(CodeProject.Angular4.Portal.RouteConfig).Assembly.GetName().Version.ToString();
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+  string webApiEndPoint = System.Configuration.ConfigurationManager.AppSettings["WebApiEndPoint"];
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-    </div>
-</div>
+  string currentRoute = "/";
+
+  foreach (string key in HttpContext.Current.Request.QueryString.AllKeys)
+  {
+      // when the user hits F5 in the browser, Angular will get rebooted
+      // the current Angular route is submitted to ASP.NET MVC
+      // For this sample application, the ASP.NET MVC routing configuration was changed
+      // to return the original route back to the client as an appended query string parameter
+
+      if (key == "CurrentRoute")
+      {
+          currentRoute = HttpContext.Current.Request.QueryString[key];
+          break;
+      }
+  }
+
+  string runMode = CodeProject.Angular4.Portal.Properties.Settings.Default.RunMode;
+
+  IEnumerable<string>
+  fileEntries = Enumerable.Empty<string>
+    ();
+
+    List<string>
+      bundles = new List<string>
+        ();
+
+        if (runMode == "WEBAPI")
+        {
+        Response.Write("running web api mode");
+        }
+        else
+        {
+        fileEntries = Directory.EnumerateFiles(Server.MapPath("~/dist"));
+        bundles.Add("inline.");
+        bundles.Add("polyfills");
+        bundles.Add("styles.");
+        bundles.Add("vendor.");
+        bundles.Add("main.");
+        }
+
+
+        }
+
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta charset="utf-8">
+          <title>Code Project Angular 4</title>
+          <link rel="icon" type="image/x-icon" href="~/dist/favicon.ico">
+
+          @if (HttpContext.Current.IsDebuggingEnabled)
+          {
+            <base href="/">
+          }
+          else
+          {
+            <base href="http://localhost/codeprojectangular4/">
+          }
+
+          <script>
+     history.pushState({}, null, "@currentRoute");
+          </script>
+
+        </head>
+        <body>
+
+        @*@RenderBody()*@
+
+        @if (runMode == "WEBAPI")
+          {
+            return;
+          }
+
+          <app-root imagesDirectory="dist" webApiEndPoint="@webApiEndPoint">Loading @version</app-root>
+          <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+          @if (HttpContext.Current.IsDebuggingEnabled)
+          {
+            <script src="~/dist/inline.bundle.js?v=@version"></script>
+            <script src="~/dist/polyfills.bundle.js?v=@version"></script>
+            <script src="~/dist/styles.bundle.js?v=@version"></script>
+            <script src="~/dist/vendor.bundle.js?v=@version"></script>
+            <script src="~/dist/main.bundle.js?v=@version"></script>
+          }
+          else
+          {
+            foreach (string bundleName in bundles)
+            {
+              foreach (string fileName in fileEntries)
+              {
+                FileInfo fileInfo = new FileInfo(fileName);
+                if (fileInfo.Name.Contains(bundleName) && fileInfo.Name.Contains(".map") == false)
+                {
+                  if (fileInfo.Name.Contains("styles"))
+                  {
+                    <link href="~/dist/@fileInfo.Name" rel="stylesheet" />
+                  }
+                  else
+                  {
+                    <script src="~/dist/@fileInfo.Name"></script>
+                  }
+
+                }
+
+              }
+
+            }
+
+          }
+
+        </body>
+      </html>
