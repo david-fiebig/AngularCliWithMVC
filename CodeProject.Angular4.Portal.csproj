@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props" Condition="Exists('..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.7\build\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" />
@@ -7,6 +7,11 @@
   <PropertyGroup>
     <!-- Disables TypeScript compilation  -->
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
+    <!-- Needed to make VS include the dist folder when deploying  -->
+    <CopyAllFilesToSingleFolderForMsdeployDependsOn>
+      CustomCollectFiles;
+      $(CopyAllFilesToSingleFolderForMsdeployDependsOn);
+    </CopyAllFilesToSingleFolderForMsdeployDependsOn>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>
@@ -196,6 +201,7 @@
     <Content Include="package-lock.json" />
     <Content Include="package.json" />
     <Content Include="README.md" />
+    <None Include="Properties\PublishProfiles\Angular5WIthMvcAndWebApi - Web Deploy.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>PublicSettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -277,6 +283,15 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'WebAPI|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE;WEBAPI</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
@@ -313,7 +328,19 @@
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
   </Target>-->
+  <!-- Needed to build the client code with ng CLI  -->
   <Target Name="AfterBuild">
+    <Exec Command="ng build --prod --deploy-url  http://angular5withmvcandwebapi.azurewebsites.net" WorkingDirectory="$(ProjectDir)" Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' " />
     <Exec Command="ng build --deploy-url http://localhost:55499/dist/" WorkingDirectory="$(ProjectDir)" Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' " />
+  </Target>
+  <!-- Needed to make VS include the dist folder when deploying  -->
+  <Target Name="CustomCollectFiles">
+    <Message Text="=== CustomCollectFiles ===" Importance="high" />
+    <ItemGroup>
+      <CustomFiles Include="dist\**\*" />
+      <FilesForPackagingFromProject Include="%(CustomFiles.Identity)">
+        <DestinationRelativePath>dist\%(Filename)%(Extension)</DestinationRelativePath>
+      </FilesForPackagingFromProject>
+    </ItemGroup>
   </Target>
 </Project>
